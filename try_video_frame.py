@@ -33,22 +33,23 @@ def listen_for_input(input_queue):
         
 
 def video_shooting():
+	
     # Initialize the video capture
-    video_capture = cv2.VideoCapture(2)
-
+    video_capture = cv2.VideoCapture(4)
+ 
     # Initialize variables for video writer which will be used when recording starts
     out = None
     is_recording = False  # Control flag for recording status
-
+ 
     # Input queue to receive commands from the listener thread
     input_queue = queue.Queue()
-
+ 
     # Start the input listener thread
     input_thread = threading.Thread(target=listen_for_input, args=(input_queue,))
     input_thread.daemon = True
     input_thread.start()
-    frame_count = 1
-    filename_txt = ''
+    # txt_file = open(filename_txt, 'w')
+    frame_counter = 1
     while True:
         # Non-blocking check for control commands
         try:
@@ -56,18 +57,14 @@ def video_shooting():
             if control_bit == '1' and not is_recording:
                 # Start recording
                 print("Starting recording...")
-                # frame_size = (int(video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)),
-                #               int(video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-                # fps = video_capture.get(cv2.CAP_PROP_FPS)
-                frame_size = (int(video_capture.get(3)), int(video_capture.get(4)))
-                fps = video_capture.get(5)
-                
+                frame_size = (int(video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                              int(video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+                fps = video_capture.get(cv2.CAP_PROP_FPS)
                 fourcc = cv2.VideoWriter_fourcc(*'DIVX')
                 filename = update_file_name()
                 out = cv2.VideoWriter(filename, fourcc, fps, frame_size)
-                filename_txt = filename.replace('.avi', '.csv')
-                with open(filename_txt, 'w', encoding='utf-8') as f:
-                    f.write(f"Timestamp, Id, Get Frame\n")
+                filename_txt = filename.replace(".avi", ".txt")
+                txt_file = open(filename_txt, 'w', encoding='utf-8')
                 is_recording = True
             elif control_bit == '0' and is_recording:
                 # Stop recording
@@ -76,35 +73,32 @@ def video_shooting():
                 is_recording = False
         except queue.Empty:
             pass
-
+ 
+        # Read frame
+        ret, frame = video_capture.read()
         
-
+        if not ret:
+            break
+ 
         # Record if is_recording is True
         if is_recording:
-            # Read frame
-            ret, frame = video_capture.read()
-            timestamp = datetime.timestamp(datetime.now())
-            if ret:
-                file_str = f"{timestamp},{frame_count}\n"
-            elif not ret:
-                file_str = f"{timestamp},{frame_count}, {ret}\n"
-
-            with open(filename_txt, 'a', encoding='utf-8') as f:
-                f.write(file_str)
-            frame_count += 1
             out.write(frame)
-
+            timestamp = datetime.timestamp(datetime.now())
+            file_str = f'{timestamp}: {frame_counter}\n'
+            txt_file.write(file_str)
+            frame_counter += 1
+ 
         # Display the frame
         # cv2.imshow('Video', frame)
-
-        if cv2.waitKey(1) & 0xFF == ord('0'):  # Allow exiting with 'q'
-            break
-
+ 
+        # if cv2.waitKey(1) & 0xFF == ord('0'):  # Allow exiting with 'q'
+        #     break
+ 
     video_capture.release()
     if is_recording:  # Ensure the video writer is released if still recording
         out.release()
     cv2.destroyAllWindows()
-    f.close()
+    txt_file.close()
 
 # This function will update the file name
 def update_file_name(filename=None):
