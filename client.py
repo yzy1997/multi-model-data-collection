@@ -6,10 +6,10 @@ import os
 from datetime import datetime
 
 def listen_for_input(input_queue):
-    host='192.168.1.107' #client ip, substitute this with your concrate local ip addr
+    host='192.168.1.137' #client ip, substitute this with your concrate local ip addr
     port = 8000
     
-    server = ('192.168.1.107', 5000) # server ip
+    server = ('192.168.1.137', 5000) # server ip
     
     c = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     c.bind((host,port))
@@ -34,7 +34,7 @@ def listen_for_input(input_queue):
 
 def video_shooting():
     # Initialize the video capture
-    video_capture = cv2.VideoCapture(2)
+    video_capture = cv2.VideoCapture(4)
 
     # Initialize variables for video writer which will be used when recording starts
     out = None
@@ -56,11 +56,11 @@ def video_shooting():
             if control_bit == '1' and not is_recording:
                 # Start recording
                 print("Starting recording...")
-                # frame_size = (int(video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)),
-                #               int(video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-                # fps = video_capture.get(cv2.CAP_PROP_FPS)
-                frame_size = (int(video_capture.get(3)), int(video_capture.get(4)))
-                fps = video_capture.get(5)
+                frame_size = (int(video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                              int(video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+                fps = video_capture.get(cv2.CAP_PROP_FPS)
+                # frame_size = (int(video_capture.get(3)), int(video_capture.get(4)))
+                # fps = video_capture.get(5)
                 
                 fourcc = cv2.VideoWriter_fourcc(*'DIVX')
                 filename = update_file_name()

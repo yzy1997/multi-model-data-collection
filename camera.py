@@ -14,11 +14,10 @@ def listen_for_input(input_queue):
 def video_shooting(control_bit):
     # Set up video capture
     video_capture = cv2.VideoCapture(4)
-    # frame_size = (int(video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)),
-    #               int(video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-    # fps = video_capture.get(cv2.CAP_PROP_FPS)
-    frame_size = (int(video_capture.get(3)), int(video_capture.get(4)))
-    fps = video_capture.get(5)
+    frame_size = (int(video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                  int(video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+    fps = video_capture.get(cv2.CAP_PROP_FPS)
+    
     print("FPS: ", fps)
 
     # Set up video writer
